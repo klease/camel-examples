@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.camel.example</groupId>
         <artifactId>examples</artifactId>
-        <version>3.11.0-SNAPSHOT</version>
+        <version>3.15.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>camel-example-routeloader</artifactId>
@@ -75,6 +75,11 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-xml-jaxb</artifactId>
+        </dependency>
+        <!-- jmx management -->
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-management</artifactId>
         </dependency>
 
         <!-- components -->

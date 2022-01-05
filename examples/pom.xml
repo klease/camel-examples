@@ -23,12 +23,12 @@
     <parent>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-dependencies</artifactId>
-        <version>3.11.0-SNAPSHOT</version>
+        <version>3.15.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.apache.camel.example</groupId>
     <artifactId>examples</artifactId>
-    <version>3.11.0-SNAPSHOT</version>
+    <version>3.15.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Camel Examples</name>
@@ -87,8 +87,7 @@
         <module>artemis-large-messages</module>
         <module>as2</module>
         <module>aws</module>
-        <module>azure-eventhubs</module>
-        <module>azure-storage-blob</module>
+        <module>azure</module>
         <module>basic</module>
         <module>billboard-aggregate</module>
         <module>bigxml-split</module>
@@ -96,15 +95,10 @@
         <module>cafe-endpointdsl</module>
         <module>cassandra-kubernetes</module>
         <module>cdi</module>
-        <module>cdi-cassandraql</module>
-        <module>cdi-kubernetes</module>
-        <module>cdi-metrics</module>
-        <module>cdi-minio</module>
-        <module>cdi-properties</module>
-        <module>cdi-rest-servlet</module>
         <module>cdi-test</module>
         <module>cdi-xml</module>
         <module>console</module>
+        <module>couchbase-log</module>
         <module>csimple</module>
         <module>csimple-joor</module>
         <module>cxf</module>
@@ -123,6 +117,7 @@
         <module>jooq</module>
         <module>kafka</module>
         <module>kamelet</module>
+        <module>kamelet-chucknorris</module>
         <module>kamelet-main</module>
         <module>kotlin</module>
         <module>loan-broker-cxf</module>
@@ -137,17 +132,18 @@
         <module>main-lambda</module>
         <module>main-tiny</module>
         <module>main-xml</module>
+        <module>main-yaml</module>
         <module>management</module>
         <module>micrometer</module>
         <module>mongodb</module>
         <module>netty-custom-correlation</module>
         <module>oaipmh</module>
-        <module>openapi-cdi</module>
         <module>pojo-messaging</module>
         <module>reactive-executor-vertx</module>
         <module>route-throttling</module>
         <module>routeloader</module>
         <module>routetemplate</module>
+        <module>routes-configuration</module>
         <module>salesforce-consumer</module>
         <module>servlet-tomcat</module>
         <module>splunk</module>
@@ -157,13 +153,10 @@
         <module>spring-security</module>
         <module>spring-ws</module>
         <module>spring-xquery</module>
-        <module>swagger-cdi</module>
         <module>telegram</module>
-        <module>transformer-cdi</module>
         <module>transformer-demo</module>
         <module>twitter-websocket</module>
         <module>vertx-kafka</module>
-        <module>widget-gadget-cdi</module>
         <module>widget-gadget-java</module>
         <module>widget-gadget-xml</module>
   </modules>
@@ -174,10 +167,10 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <site-repo-url>scpexe://people.apache.org/www/camel.apache.org/maven/</site-repo-url>
-        <jdk.version>1.8</jdk.version>
+        <jdk.version>11</jdk.version>
         <compiler.fork>false</compiler.fork>
 
-        <camel.version>3.11.0-SNAPSHOT</camel.version>
+        <camel.version>3.15.0-SNAPSHOT</camel.version>
 
         <!-- Versions -->
         <arquillian-version>1.5.0.Final</arquillian-version>

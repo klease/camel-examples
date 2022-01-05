@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.camel.example</groupId>
         <artifactId>examples</artifactId>
-        <version>3.11.0-SNAPSHOT</version>
+        <version>3.15.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>camel-example-bigxml-split</artifactId>
@@ -33,8 +33,6 @@
     <description>How to deal with big XML files in Camel</description>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <category>EIP</category>
