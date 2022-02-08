@@ -21,8 +21,8 @@ import org.apache.camel.builder.RouteBuilder;
 public class MyRouteBuilder extends RouteBuilder {
 
     @Override
-    public void configure() throws Exception {
-        from("timer:foo?period=3000")
+    public void configure() {
+        from("timer:foo?period={{myPeriod}}")
             .transform(constant("Hello World"))
             .to("jms:queue:cheese");
 

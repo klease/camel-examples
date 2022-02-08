@@ -9,21 +9,33 @@ via Camel built-in dependency-injection that supports binding via the
 
 Also notice how you can configure Camel in the `application.properties` file.
 
+=== Build
+
+You will need to compile this example first:
+
+[source,sh]
+----
+$ mvn compile
+----
+
 === How to run
 
 First install https://activemq.apache.org/components/artemis/[Apache ActiveMQ Artemis]
 and create a broker, such as `mybroker`, and create the admin user as `admin` as username
 and `admin` as password:
 
-    bin/artemis create mybroker
-    cd mybroker
-    bin/artemis run
+[source,sh]
+----
+$ bin/artemis create mybroker
+$ cd mybroker
+$ bin/artemis run
+----
 
 Then you can run this example using
 
 [source,sh]
 ----
-$ mvn compile camel:run
+$ mvn camel:run
 ----
 
 === Help and contributions

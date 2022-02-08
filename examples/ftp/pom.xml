@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.camel.example</groupId>
         <artifactId>examples</artifactId>
-        <version>3.15.0-SNAPSHOT</version>
+        <version>3.16.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>camel-example-ftp</artifactId>
@@ -82,6 +82,18 @@
             <version>${log4j2-version}</version>
         </dependency>
 
+        <!-- for testing -->
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-test-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ftpserver</groupId>
+            <artifactId>ftpserver-core</artifactId>
+            <version>${ftpserver-version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>

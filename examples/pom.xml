@@ -23,12 +23,12 @@
     <parent>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-dependencies</artifactId>
-        <version>3.15.0-SNAPSHOT</version>
+        <version>3.16.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.apache.camel.example</groupId>
     <artifactId>examples</artifactId>
-    <version>3.15.0-SNAPSHOT</version>
+    <version>3.16.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Camel Examples</name>
@@ -125,7 +125,6 @@
         <module>main</module>
         <module>main-artemis</module>
         <module>main-endpointdsl</module>
-        <module>main-endpointdsl-google-pubsub</module>
         <module>main-health</module>
         <module>main-joor</module>
         <module>main-lambda</module>
@@ -167,10 +166,12 @@
         <jdk.version>11</jdk.version>
         <compiler.fork>false</compiler.fork>
 
-        <camel.version>3.15.0-SNAPSHOT</camel.version>
+        <camel.version>3.16.0-SNAPSHOT</camel.version>
 
         <!-- Versions -->
-        <arquillian-version>1.5.0.Final</arquillian-version>
+        <arquillian-version>1.7.0.Alpha10</arquillian-version>
+        <arquillian-tomcat-version>1.1.0.Final</arquillian-tomcat-version>
+        <arquillian-jetty-version>1.0.0.CR4</arquillian-jetty-version>
         <asciidoctorj-version>2.1.0</asciidoctorj-version>
         <cdi-api-1.2-version>1.2</cdi-api-1.2-version>
         <glassfish-jaxb-runtime-version>${jakarta-jaxb-version}</glassfish-jaxb-runtime-version>
@@ -187,7 +188,7 @@
         <pax-cdi-version>1.0.0</pax-cdi-version>
         <spring-security-version>5.3.0.RELEASE</spring-security-version>
         <surefire.version>${maven-surefire-plugin-version}</surefire.version>
-        <tomcat-version>9.0.36</tomcat-version>
+        <tomcat-version>9.0.56</tomcat-version>
         <woodstox-version>6.0.3</woodstox-version>
         <xmlunit-version>1.6</xmlunit-version>
         <derby-version>10.14.2.0</derby-version>

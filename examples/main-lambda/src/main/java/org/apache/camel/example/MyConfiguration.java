@@ -17,12 +17,14 @@
 package org.apache.camel.example;
 
 import org.apache.camel.BindToRegistry;
+import org.apache.camel.Configuration;
 import org.apache.camel.PropertyInject;
 import org.apache.camel.builder.LambdaRouteBuilder;
 
 /**
  * Class to configure the Camel application.
  */
+@Configuration
 public class MyConfiguration {
 
     @BindToRegistry
