@@ -19,7 +19,7 @@ package org.apache.camel.example;
 import org.apache.camel.main.Main;
 
 /**
- * Main class that boot the Camel application
+ * Main class that boots up the Camel application
  */
 public final class MyApplication {
 
@@ -40,7 +40,7 @@ public final class MyApplication {
         // and you can also use both java and properties together
 
         // in this example we use properties by default and have disabled java
-        // main.bind("myTemplateBuilder", new MyTemplateBuilder());
+        // main.configure().addRoutesBuilder(MyTemplateBuilder.class);
 
         // now keep the application running until the JVM is terminated (ctrl + c or sigterm)
         main.run(args);

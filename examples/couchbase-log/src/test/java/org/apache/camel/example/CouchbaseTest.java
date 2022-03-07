@@ -16,27 +16,29 @@
  */
 package org.apache.camel.example;
 
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.json.JsonObject;
-import com.couchbase.client.java.manager.view.DesignDocument;
-import com.couchbase.client.java.manager.view.View;
-import com.couchbase.client.java.view.DesignDocumentNamespace;
-import org.apache.camel.CamelContext;
-import org.apache.camel.RoutesBuilder;
-import org.apache.camel.builder.NotifyBuilder;
-import org.apache.camel.component.couchbase.CouchbaseConstants;
-import org.apache.camel.test.junit5.CamelTestSupport;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.testcontainers.couchbase.BucketDefinition;
-import org.testcontainers.couchbase.CouchbaseContainer;
-
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+
+import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.json.JsonObject;
+import com.couchbase.client.java.manager.bucket.BucketSettings;
+import com.couchbase.client.java.manager.bucket.BucketType;
+import com.couchbase.client.java.manager.view.DesignDocument;
+import com.couchbase.client.java.manager.view.View;
+import com.couchbase.client.java.view.DesignDocumentNamespace;
+import org.apache.camel.builder.NotifyBuilder;
+import org.apache.camel.component.couchbase.CouchbaseConstants;
+import org.apache.camel.main.MainConfigurationProperties;
+import org.apache.camel.test.infra.couchbase.services.CouchbaseService;
+import org.apache.camel.test.infra.couchbase.services.CouchbaseServiceFactory;
+import org.apache.camel.test.main.junit5.CamelMainTestSupport;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.apache.camel.util.PropertiesHelper.asProperties;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,27 +46,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * A unit test checking that Camel consume data from Couchbase.
  */
-class CouchbaseTest extends CamelTestSupport {
+class CouchbaseTest extends CamelMainTestSupport {
 
-    private static final String IMAGE = "couchbase/server:7.0.3";
     private static final String BUCKET = "test-bucket-" + System.currentTimeMillis();
-    private static CouchbaseContainer CONTAINER;
+
+    @RegisterExtension
+    private static final CouchbaseService SERVICE = CouchbaseServiceFactory.createService();
     private static Cluster CLUSTER;
 
     @BeforeAll
     static void init() {
-        CONTAINER = new CouchbaseContainer(IMAGE) {
-            {
-                // Camel component tries to use the default port of the KV Service, so we need to fix it
-                final int kvPort = 11210;
-                addFixedExposedPort(kvPort, kvPort);
-            }
-        }.withBucket(new BucketDefinition(BUCKET));
-        CONTAINER.start();
         CLUSTER = Cluster.connect(
-            CONTAINER.getConnectionString(),
-            CONTAINER.getUsername(),
-            CONTAINER.getPassword()
+            SERVICE.getConnectionString(), SERVICE.getUsername(), SERVICE.getPassword()
         );
         DesignDocument designDoc = new DesignDocument(
             CouchbaseConstants.DEFAULT_DESIGN_DOCUMENT_NAME,
@@ -73,36 +66,26 @@ class CouchbaseTest extends CamelTestSupport {
                 new View("function (doc, meta) {  emit(meta.id, doc);}")
             )
         );
+        CLUSTER.buckets().createBucket(
+                BucketSettings.create(BUCKET).bucketType(BucketType.COUCHBASE).flushEnabled(true));
         CLUSTER.bucket(BUCKET).viewIndexes().upsertDesignDocument(designDoc, DesignDocumentNamespace.PRODUCTION);
     }
 
     @AfterAll
     static void destroy() {
-        if (CONTAINER != null) {
-            try {
-                if (CLUSTER != null) {
-                    CLUSTER.disconnect();
-                }
-            } finally {
-                CONTAINER.stop();
-            }
+        if (CLUSTER != null) {
+            CLUSTER.buckets().dropBucket(BUCKET);
+            CLUSTER.disconnect();
         }
-    }
-
-    @Override
-    protected CamelContext createCamelContext() throws Exception {
-        CamelContext camelContext = super.createCamelContext();
-        camelContext.getPropertiesComponent().setLocation("classpath:application.properties");
-        return camelContext;
     }
 
     @Override
     protected Properties useOverridePropertiesWithPropertiesComponent() {
         return asProperties(
-            "couchbase.host", CONTAINER.getHost(),
-            "couchbase.port", Integer.toString(CONTAINER.getBootstrapHttpDirectPort()),
-            "couchbase.username", CONTAINER.getUsername(),
-            "couchbase.password", CONTAINER.getPassword(),
+            "couchbase.host", SERVICE.getHostname(),
+            "couchbase.port", Integer.toString(SERVICE.getPort()),
+            "couchbase.username", SERVICE.getUsername(),
+            "couchbase.password", SERVICE.getPassword(),
             "couchbase.bucket", BUCKET
         );
     }
@@ -122,7 +105,7 @@ class CouchbaseTest extends CamelTestSupport {
     }
 
     @Override
-    protected RoutesBuilder createRouteBuilder() {
-        return new MyRouteBuilder();
+    protected void configure(MainConfigurationProperties configuration) {
+        configuration.addRoutesBuilder(MyRouteBuilder.class);
     }
 }

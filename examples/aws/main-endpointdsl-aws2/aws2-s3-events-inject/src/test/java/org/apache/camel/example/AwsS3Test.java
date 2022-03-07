@@ -19,64 +19,31 @@ package org.apache.camel.example;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.NotifyBuilder;
 import org.apache.camel.component.aws2.s3.AWS2S3Component;
-import org.apache.camel.test.junit5.CamelTestSupport;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.apache.camel.main.MainConfigurationProperties;
+import org.apache.camel.test.infra.aws.common.services.AWSService;
+import org.apache.camel.test.infra.aws2.clients.AWSSDKClientUtils;
+import org.apache.camel.test.infra.aws2.services.AWSServiceFactory;
+import org.apache.camel.test.main.junit5.CamelMainTestSupport;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.localstack.LocalStackContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.utility.DockerImageName;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
 
 /**
  * A unit test checking that Camel can store content into an Amazon S3 bucket.
  */
-class AwsS3Test extends CamelTestSupport {
+class AwsS3Test extends CamelMainTestSupport {
 
-    private static final String IMAGE = "localstack/localstack:0.13.3";
-    private static LocalStackContainer CONTAINER;
-
-    @BeforeAll
-    static void init() {
-        CONTAINER = new LocalStackContainer(DockerImageName.parse(IMAGE))
-                .withServices(S3)
-                .waitingFor(Wait.forLogMessage(".*Ready\\.\n", 1));;
-        CONTAINER.start();
-    }
-
-    @AfterAll
-    static void destroy() {
-        if (CONTAINER != null) {
-            CONTAINER.stop();
-        }
-    }
+    @RegisterExtension
+    private static final AWSService AWS_SERVICE = AWSServiceFactory.createS3Service();
 
     @Override
     protected CamelContext createCamelContext() throws Exception {
         CamelContext camelContext = super.createCamelContext();
-        // Set the location of the configuration
-        camelContext.getPropertiesComponent().setLocation("classpath:application.properties");
         AWS2S3Component s3 = camelContext.getComponent("aws2-s3", AWS2S3Component.class);
-        s3.getConfiguration().setAmazonS3Client(
-                S3Client.builder()
-                .endpointOverride(CONTAINER.getEndpointOverride(S3))
-                .credentialsProvider(
-                    StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(CONTAINER.getAccessKey(), CONTAINER.getSecretKey())
-                    )
-                )
-                .region(Region.of(CONTAINER.getRegion()))
-                .build()
-        );
+        s3.getConfiguration().setAmazonS3Client(AWSSDKClientUtils.newS3Client());
         return camelContext;
     }
 
@@ -89,7 +56,7 @@ class AwsS3Test extends CamelTestSupport {
     }
 
     @Override
-    protected RoutesBuilder createRouteBuilder() {
-        return new MyRouteBuilder();
+    protected void configure(MainConfigurationProperties configuration) {
+        configuration.addRoutesBuilder(MyRouteBuilder.class);
     }
 }

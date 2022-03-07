@@ -16,19 +16,18 @@
  */
 package org.apache.camel.example.mongodb;
 
-import com.mongodb.client.MongoClients;
-import io.restassured.response.Response;
-import org.apache.camel.CamelContext;
-import org.apache.camel.RoutesBuilder;
-import org.apache.camel.test.junit5.CamelTestSupport;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.utility.DockerImageName;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.mongodb.client.MongoClients;
+import io.restassured.response.Response;
+import org.apache.camel.main.MainConfigurationProperties;
+import org.apache.camel.spi.Registry;
+import org.apache.camel.test.infra.mongodb.services.MongoDBService;
+import org.apache.camel.test.infra.mongodb.services.MongoDBServiceFactory;
+import org.apache.camel.test.main.junit5.CamelMainTestSupport;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
@@ -38,35 +37,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * A unit test checking that Camel can execute CRUD operations against MongoDB.
  */
-class MongoDBTest extends CamelTestSupport {
-
-    private static final String IMAGE = "mongo:5.0";
-    private static MongoDBContainer CONTAINER;
+class MongoDBTest extends CamelMainTestSupport {
 
     private static final String BASE_URI = "http://localhost:8081";
 
-    @BeforeAll
-    static void init() {
-        CONTAINER = new MongoDBContainer(DockerImageName.parse(IMAGE));
-        CONTAINER.start();
-    }
-
-    @AfterAll
-    static void destroy() {
-        if (CONTAINER != null) {
-            CONTAINER.stop();
-        }
-    }
+    @RegisterExtension
+    private static final MongoDBService SERVICE = MongoDBServiceFactory.createService();
 
     @Override
-    protected CamelContext createCamelContext() throws Exception {
-        CamelContext camelContext = super.createCamelContext();
-        // Bind the MongoDB client with the host and port of the container
-        camelContext.getRegistry().bind(
-            "myDb",
-            MongoClients.create(String.format("mongodb://%s:%d", CONTAINER.getHost(), CONTAINER.getMappedPort(27017)))
-        );
-        return camelContext;
+    protected void bindToRegistry(Registry registry) throws Exception {
+        registry.bind("myDb", MongoClients.create(SERVICE.getReplicaSetUrl()));
     }
 
     @Test
@@ -103,9 +83,9 @@ class MongoDBTest extends CamelTestSupport {
     }
 
     @Override
-    protected RoutesBuilder[] createRouteBuilders() {
-        return new RoutesBuilder[]{
-            new MongoDBFindByIDRouteBuilder(), new MongoDBFindAllRouteBuilder(), new MongoDBInsertRouteBuilder()
-        };
+    protected void configure(MainConfigurationProperties configuration) {
+        configuration.addRoutesBuilder(new MongoDBFindByIDRouteBuilder());
+        configuration.addRoutesBuilder(new MongoDBFindAllRouteBuilder());
+        configuration.addRoutesBuilder(new MongoDBInsertRouteBuilder());
     }
 }

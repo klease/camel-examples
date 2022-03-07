@@ -10,9 +10,27 @@ Also notice how you can configure Camel in the `application.properties` file.
 
 Login into your AWS Account and create a secret called "finnhub_token" with the Finnhub.io token value, you retrieved from finnhub_token.
 
-- Setting up the AWS credentials
+- Setting up the AWS credentials as enviroment variables
 
-Open the `application.properties` file and set the correct values for accessKey, secretKey and region 
+[source,sh]
+----
+export CAMEL_VAULT_AWS_REGION=<region>
+export CAMEL_VAULT_AWS_SECRET_KEY=<secretKey>
+export CAMEL_VAULT_AWS_ACCESS_KEY=<accessKey>
+----
+
+Now you're ready to run the example.
+
+Another possibility is adding the credentials as properties in the src/main/resources/application.properties file
+
+[source,sh]
+----
+camel.vault.aws.accessKey=<accessKey>
+camel.vault.aws.secretKey=<secretKey>
+camel.vault.aws.region=<region>
+----
+
+The enviroment variables have the priority on the properties.
 
 === Build
 

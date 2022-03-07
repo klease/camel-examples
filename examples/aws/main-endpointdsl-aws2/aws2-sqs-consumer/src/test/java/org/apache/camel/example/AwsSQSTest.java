@@ -19,74 +19,39 @@ package org.apache.camel.example;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.NotifyBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.aws2.sqs.Sqs2Component;
-import org.apache.camel.test.junit5.CamelTestSupport;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.apache.camel.main.MainConfigurationProperties;
+import org.apache.camel.test.infra.aws.common.services.AWSService;
+import org.apache.camel.test.infra.aws2.clients.AWSSDKClientUtils;
+import org.apache.camel.test.infra.aws2.services.AWSServiceFactory;
+import org.apache.camel.test.main.junit5.CamelMainTestSupport;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.localstack.LocalStackContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.utility.DockerImageName;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.sqs.SqsClient;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.testcontainers.containers.localstack.LocalStackContainer.Service.SQS;
 
 /**
  * A unit test checking that Camel can consume messages from Amazon SQS.
  */
-class AwsSQSTest extends CamelTestSupport {
+class AwsSQSTest extends CamelMainTestSupport {
 
-    private static final String IMAGE = "localstack/localstack:0.13.3";
-    private static LocalStackContainer CONTAINER;
-
-    @BeforeAll
-    static void init() {
-        CONTAINER = new LocalStackContainer(DockerImageName.parse(IMAGE))
-                .withServices(SQS)
-                .waitingFor(Wait.forLogMessage(".*Ready\\.\n", 1));;
-        CONTAINER.start();
-    }
-
-    @AfterAll
-    static void destroy() {
-        if (CONTAINER != null) {
-            CONTAINER.stop();
-        }
-    }
+    @RegisterExtension
+    private static final AWSService AWS_SERVICE = AWSServiceFactory.createSQSService();
 
     @Override
     protected CamelContext createCamelContext() throws Exception {
         CamelContext camelContext = super.createCamelContext();
-        // Set the location of the configuration
-        camelContext.getPropertiesComponent().setLocation("classpath:application.properties");
         Sqs2Component sqs = camelContext.getComponent("aws2-sqs", Sqs2Component.class);
-        sqs.getConfiguration().setAmazonSQSClient(
-                SqsClient.builder()
-                .endpointOverride(CONTAINER.getEndpointOverride(SQS))
-                .credentialsProvider(
-                    StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(CONTAINER.getAccessKey(), CONTAINER.getSecretKey())
-                    )
-                )
-                .region(Region.of(CONTAINER.getRegion()))
-                .build()
-        );
+        sqs.getConfiguration().setAmazonSQSClient(AWSSDKClientUtils.newSQSClient());
         return camelContext;
     }
 
     @Test
     void should_poll_sqs_queue() {
         // Add a message first
-        template.send("direct:publishMessage", exchange -> {
-            exchange.getIn().setBody("Camel rocks!");
-        });
+        template.send("direct:publishMessage", exchange -> exchange.getIn().setBody("Camel rocks!"));
 
         NotifyBuilder notify = new NotifyBuilder(context).from("aws2-sqs:*").whenCompleted(1).create();
         assertTrue(
@@ -95,8 +60,9 @@ class AwsSQSTest extends CamelTestSupport {
     }
 
     @Override
-    protected RoutesBuilder[] createRouteBuilders() {
-        return new RoutesBuilder[]{new MyRouteBuilder(), new PublishMessageRouteBuilder()};
+    protected void configure(MainConfigurationProperties configuration) {
+        configuration.addRoutesBuilder(MyRouteBuilder.class);
+        configuration.addRoutesBuilder(new PublishMessageRouteBuilder());
     }
 
     private static class PublishMessageRouteBuilder extends RouteBuilder {

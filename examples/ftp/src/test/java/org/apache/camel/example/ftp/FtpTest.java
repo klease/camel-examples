@@ -16,10 +16,15 @@
  */
 package org.apache.camel.example.ftp;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.RoutesBuilder;
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.camel.builder.NotifyBuilder;
-import org.apache.camel.test.junit5.CamelTestSupport;
+import org.apache.camel.main.MainConfigurationProperties;
+import org.apache.camel.test.main.junit5.CamelMainTestSupport;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.filesystem.nativefs.NativeFileSystemFactory;
@@ -32,19 +37,15 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
+import static org.apache.camel.test.junit5.TestSupport.createDirectory;
+import static org.apache.camel.test.junit5.TestSupport.deleteDirectory;
 import static org.apache.camel.util.PropertiesHelper.asProperties;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * A unit test checking that Camel can read/write from/to a ftp server.
  */
-class FtpTest extends CamelTestSupport {
+class FtpTest extends CamelMainTestSupport {
 
     private static FtpServer SERVER;
     private static int PORT;
@@ -68,7 +69,7 @@ class FtpTest extends CamelTestSupport {
         serverFactory.setFileSystem(fsf);
 
         // Create the admin home
-        new File("./target/ftp-server").mkdirs();
+        createDirectory("./target/ftp-server");
 
         SERVER = serverFactory.createServer();
         // start the server
@@ -77,16 +78,12 @@ class FtpTest extends CamelTestSupport {
 
     @AfterAll
     static void destroy() {
+        // Delete directories
+        deleteDirectory("./target/ftp-server");
+        deleteDirectory("./target/upload");
         if (SERVER != null) {
             SERVER.stop();
         }
-    }
-
-    @Override
-    protected CamelContext createCamelContext() throws Exception {
-        CamelContext camelContext = super.createCamelContext();
-        camelContext.getPropertiesComponent().setLocation("classpath:ftp.properties");
-        return camelContext;
     }
 
     @Override
@@ -119,7 +116,7 @@ class FtpTest extends CamelTestSupport {
     }
 
     @Override
-    protected RoutesBuilder[] createRouteBuilders() {
-        return new RoutesBuilder[]{new MyFtpClientRouteBuilder(), new MyFtpServerRouteBuilder()};
+    protected void configure(MainConfigurationProperties configuration) {
+        configuration.addRoutesBuilder(MyFtpClientRouteBuilder.class, MyFtpServerRouteBuilder.class);
     }
 }

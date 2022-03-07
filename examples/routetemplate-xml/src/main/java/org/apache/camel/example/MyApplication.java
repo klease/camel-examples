@@ -14,15 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.example.pulsar.server;
+package org.apache.camel.example;
 
-import org.apache.camel.Converter;
+import org.apache.camel.main.Main;
 
-public class TypeConverters implements org.apache.camel.TypeConverters {
+/**
+ * Main class that boots up the Camel application
+ */
+public final class MyApplication {
 
-    @Converter
-    public int intFromByteArray(byte[] bytes) {
-        return 22;
+    private MyApplication() {
+    }
+
+    public static void main(String[] args) throws Exception {
+        // use Camels Main class
+        Main main = new Main();
+        // and add all the XML templates and builders
+        // make sure that the templates are listed before the builders to prevent
+        // route creation error
+        main.configure().withRoutesIncludePattern("templates/*.xml,builders/*.xml");
+        // now keep the application running until the JVM is terminated (ctrl + c or sigterm)
+        main.run(args);
     }
 
 }
