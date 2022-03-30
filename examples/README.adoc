@@ -132,6 +132,8 @@ Number of Examples: 85 (0 deprecated)
 
 | link:loan-broker-jms/README.adoc[Loan Broker JMS] (loan-broker-jms) | EIP | An example that shows the EIP's loan broker demo using JMS
 
+| link:resume-api/README.md[Resume Api] (resume-api) | EIP | Multiple Resume API examples
+
 | link:route-throttling/README.adoc[Route Throttling] (route-throttling) | EIP | A client-server example using JMS transport where we on the server side can throttle the Camel
         route dynamically based on the flow of messages
     
@@ -169,8 +171,6 @@ Number of Examples: 85 (0 deprecated)
 | link:netty-custom-correlation/README.adoc[Netty Custom Correlation] (netty-custom-correlation) | Messaging | An example for showing Camel Netty with custom codec and correlation id
 
 | link:spring-pulsar/README.adoc[Spring Pulsar] (spring-pulsar) | Messaging | An example using Spring XML to talk to the Pulsar server from different kind of client techniques
-
-| link:vertx-kafka/README.adoc[Vertx Kafka] (vertx-kafka) | Messaging | An example for Vertx Kafka
 
 | link:kotlin/README.adoc[Kotlin] (kotlin) | Other Languages | A Camel route using Kotlin
 

@@ -25,12 +25,12 @@
     <parent>
         <groupId>org.apache.camel.example</groupId>
         <artifactId>examples</artifactId>
-        <version>3.16.0-SNAPSHOT</version>
+        <version>3.17.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>camel-example-main-health</artifactId>
     <packaging>jar</packaging>
-    <name>Camel :: Example :: Main Health</name>
+    <name>Camel :: Example :: Main :: Health</name>
     <description>An example for showing standalone Camel with Health Checks</description>
 
     <properties>
